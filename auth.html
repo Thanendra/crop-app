@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Crop Advisor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; font-family: 'Nunito Sans', sans-serif; color: #1b2a22;
+           background: linear-gradient(135deg, #0b3d2e 0%, #0f5c45 50%, #127a8a 100%); display: grid; place-items: center; padding: 20px; }
+    .wrap { width: 100%; max-width: 900px; display: grid; grid-template-columns: 1fr 1fr; border-radius: 24px; overflow: hidden;
+            box-shadow: 0 30px 70px rgba(0,0,0,.35); background: #fff; }
+    .info { background: linear-gradient(160deg, #0f9b6e, #0b6e8a); color: #fff; padding: 40px 34px; display: flex; flex-direction: column; justify-content: center; }
+    .logo { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #fbbf24, #f97316);
+            display: grid; place-items: center; font-size: 28px; margin-bottom: 18px; }
+    .info h1 { font-family: 'Fraunces', serif; font-size: 30px; margin: 0 0 10px; line-height: 1.15; }
+    .info p { opacity: .92; line-height: 1.6; margin: 0 0 18px; }
+    .info ul { list-style: none; padding: 0; margin: 0; }
+    .info li { padding: 7px 0; font-weight: 700; font-size: 15px; }
+    .form { padding: 40px 34px; }
+    .form h2 { font-family: 'Fraunces', serif; font-size: 28px; margin: 0 0 4px; color: #0b3d2e; }
+    .form .sub { color: #62736b; margin: 0 0 20px; }
+    label { display: block; font-weight: 800; font-size: 13px; margin: 14px 0 6px; color: #38504a; }
+    input { width: 100%; padding: 12px 14px; border: 1px solid #cfd9d3; border-radius: 11px; font-family: inherit; font-size: 15px; }
+    input:focus { outline: 2px solid #10b981; border-color: transparent; }
+    .error { background: #fee2e2; color: #991b1b; padding: 11px 14px; border-radius: 10px; font-weight: 700; margin-bottom: 4px; font-size: 14px; }
+    .ok { background: #d1fae5; color: #065f46; padding: 11px 14px; border-radius: 10px; font-weight: 700; margin-bottom: 4px; font-size: 14px; }
+    .linkbox { background: #fffbeb; border: 1px dashed #f59e0b; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 13px; word-break: break-all; }
+    .linkbox a { color: #b45309; font-weight: 800; }
+    button { width: 100%; margin-top: 22px; border: 0; cursor: pointer; padding: 14px; border-radius: 12px; font-family: inherit;
+             font-weight: 800; font-size: 16px; color: #fff; background: linear-gradient(135deg, #0f9b6e, #0b6e8a);
+             box-shadow: 0 8px 20px rgba(15,155,110,.3); }
+    .row { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .row a { font-size: 13px; font-weight: 800; color: #0f5c45; text-decoration: none; }
+    .switch { text-align: center; margin: 18px 0 0; color: #62736b; font-size: 14px; }
+    .switch a { color: #0f5c45; font-weight: 800; text-decoration: none; }
+    @media (max-width: 760px) {
+      .wrap { grid-template-columns: 1fr; }
+      .info { padding: 26px 24px; }
+      .info ul { display: none; }
+      .form { padding: 26px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="info">
+      <div class="logo">🌾</div>
+      <h1>Smart Crop Advisor</h1>
+      <p>Get the best crop for your land from soil and weather data, powered by a Random Forest model.</p>
+      <ul>
+        <li>🌱 22 crops, 7 inputs</li>
+        <li>🌦 Live weather for your city</li>
+        <li>🕘 Your prediction history, saved</li>
+        <li>📊 Dashboard and reports</li>
+      </ul>
+    </div>
+
+    <div class="form">
+      {% if mode == 'register' %}
+        <h2>Create account</h2>
+        <p class="sub">Sign up to save your predictions</p>
+      {% elif mode == 'forgot' %}
+        <h2>Forgot password?</h2>
+        <p class="sub">Enter your email and we will give you a reset link</p>
+      {% elif mode == 'reset' %}
+        <h2>Set new password</h2>
+        <p class="sub">Choose a new password for your account</p>
+      {% else %}
+        <h2>Welcome back</h2>
+        <p class="sub">Log in to continue</p>
+      {% endif %}
+
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+      {% if message %}<div class="ok">{{ message }}</div>{% endif %}
+      {% if demo_link %}
+      <div class="linkbox">Reset link: <a href="{{ demo_link }}">{{ demo_link }}</a></div>
+      {% endif %}
+
+      <form method="post" autocomplete="on">
+        {% if mode == 'register' %}
+          <label for="name">Full name</label>
+          <input id="name" name="name" type="text" required>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required>
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required minlength="6">
+          <label for="confirm">Confirm password</label>
+          <input id="confirm" name="confirm" type="password" required minlength="6">
+          <button type="submit">Create account</button>
+          <p class="switch">Already have an account? <a href="{{ url_for('login') }}">Log in</a></p>
+
+        {% elif mode == 'forgot' %}
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required>
+          <button type="submit">Get reset link</button>
+          <p class="switch"><a href="{{ url_for('login') }}">&larr; Back to login</a></p>
+
+        {% elif mode == 'reset' %}
+          <label for="password">New password</label>
+          <input id="password" name="password" type="password" required minlength="6">
+          <label for="confirm">Confirm new password</label>
+          <input id="confirm" name="confirm" type="password" required minlength="6">
+          <button type="submit">Change password</button>
+
+        {% else %}
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required>
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required minlength="6">
+          <div class="row"><a href="{{ url_for('forgot') }}">Forgot password?</a></div>
+          <button type="submit">Log in</button>
+          <p class="switch">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</body>
+</html>
