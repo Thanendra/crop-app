@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smart Crop Recommendation System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,800&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --dark:#0b3d2e; --green:#0f5c45; --teal:#127a8a; --muted:#62736b; --line:#e3ebe6; }
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; font-family: 'Nunito Sans', sans-serif; color: #1b2a22;
+           background: linear-gradient(135deg, #dff5ea 0%, #e3ecfd 48%, #f1e4fb 100%) fixed; }
+    h1, h2, h3 { font-family: 'Fraunces', serif; margin: 0; }
+    a { color: inherit; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    section[id] { scroll-margin-top: 80px; }
+
+    /* ---------- Navbar ---------- */
+    .nav { position: sticky; top: 0; z-index: 50; background: rgba(255,255,255,.92); backdrop-filter: blur(10px);
+           border-bottom: 1px solid var(--line); }
+    .nav-in { max-width: 1100px; margin: 0 auto; padding: 10px 20px; display: flex; align-items: center; gap: 18px; }
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: 'Fraunces', serif;
+            font-weight: 800; color: var(--dark); font-size: 18px; white-space: nowrap; }
+    .logo i { font-style: normal; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center;
+              background: linear-gradient(135deg, #fbbf24, #f97316); font-size: 20px; }
+    .links { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; }
+    .links a { text-decoration: none; font-weight: 700; font-size: 14px; padding: 9px 13px; border-radius: 9px;
+               color: #38504a; white-space: nowrap; }
+    .links a:hover { background: #e9f5ee; color: var(--dark); }
+    .links a.cta { background: linear-gradient(135deg, #0f9b6e, #0b6e8a); color: #fff; }
+
+    /* ---------- Hero ---------- */
+    .hero { background: linear-gradient(135deg, #0b3d2e 0%, #0f5c45 55%, #127a8a 100%); color: #fff; padding: 56px 0 70px;
+            position: relative; overflow: hidden; }
+    .hero::before { content: ""; position: absolute; right: -120px; top: -120px; width: 420px; height: 420px; border-radius: 50%;
+                    background: rgba(255,255,255,.06); }
+    .hero-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 36px; align-items: center; position: relative; }
+    .badge { display: inline-block; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.25);
+             padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; margin-bottom: 16px; }
+    .hero h1 { font-size: clamp(32px, 5vw, 52px); line-height: 1.1; }
+    .hero h1 span { color: #fbbf24; }
+    .hero p { font-size: 17px; line-height: 1.65; opacity: .92; max-width: 540px; margin: 16px 0 26px; }
+    .btn { border: 0; cursor: pointer; text-decoration: none; font-family: inherit; font-weight: 800; font-size: 15px;
+           padding: 13px 24px; border-radius: 12px; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-gold { background: linear-gradient(135deg, #fbbf24, #f97316); color: #3a2300; box-shadow: 0 8px 20px rgba(249,115,22,.35); }
+    .btn-line { background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.35); margin-left: 8px; }
+    .btn-green { background: linear-gradient(135deg, #0f9b6e, #0b6e8a); color: #fff; box-shadow: 0 8px 20px rgba(15,155,110,.3); }
+    .btn-ghost { background: #eef3f0; color: var(--dark); }
+    .art { display: grid; place-items: center; }
+    .orb { width: min(300px, 70vw); aspect-ratio: 1; border-radius: 50%; position: relative; overflow: hidden; display: grid;
+           place-items: center; font-size: 90px; background: linear-gradient(135deg, #fbbf24, #f97316);
+           border: 8px solid rgba(255,255,255,.28); box-shadow: 0 24px 50px rgba(0,0,0,.3); }
+    .orb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; position: relative; }
+    .stat { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); border-radius: 16px; padding: 16px 18px; }
+    .stat b { font-family: 'Fraunces', serif; font-size: 28px; color: #fbbf24; display: block; }
+    .stat span { font-size: 13px; opacity: .9; }
+
+    /* ---------- Steps ---------- */
+    .block { padding: 54px 0 10px; }
+    .title { text-align: center; margin-bottom: 26px; }
+    .title h2 { font-size: 30px; color: var(--dark); }
+    .title p { color: var(--muted); margin: 8px 0 0; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .step { background: #fff; border-radius: 18px; padding: 22px; border-top: 5px solid #10b981; box-shadow: 0 10px 26px rgba(30,60,90,.10); }
+    .step:nth-child(2) { border-color: #f59e0b; } .step:nth-child(3) { border-color: #8b5cf6; }
+    .step .n { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; font-weight: 800;
+               font-size: 18px; margin-bottom: 12px; background: linear-gradient(135deg, #0f9b6e, #34d399); }
+    .step:nth-child(2) .n { background: linear-gradient(135deg, #f59e0b, #f97316); }
+    .step:nth-child(3) .n { background: linear-gradient(135deg, #7c3aed, #ec4899); }
+    .step h3 { font-size: 18px; color: var(--dark); margin-bottom: 6px; }
+    .step p { margin: 0; color: var(--muted); line-height: 1.55; font-size: 15px; }
+
+    /* ---------- Predictor ---------- */
+    .panel { background: #fff; border-radius: 22px; padding: 30px; border-top: 6px solid #10b981;
+             box-shadow: 0 16px 40px rgba(30,60,90,.14); }
+    .panel-head h2 { font-size: 26px; color: var(--dark); }
+    .panel-head p { color: var(--muted); margin: 6px 0 16px; }
+    .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+    .chip { border: 2px solid transparent; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 14px;
+            padding: 9px 16px; border-radius: 999px; background: linear-gradient(135deg, #d1fae5, #bfdbfe); color: var(--dark); }
+    .chip.on { border-color: #0f9b6e; }
+    .group { font-family: 'Nunito Sans', sans-serif; font-size: 15px; color: var(--green); margin: 22px 0 10px;
+             display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .group::after { content: ""; flex: 1; height: 2px; background: var(--line); min-width: 30px; }
+    .field-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+    .field { background: #f7faf8; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+    .field label { font-weight: 800; font-size: 14px; display: block; margin-bottom: 8px; }
+    .unit { color: var(--muted); font-weight: 600; font-size: 12px; margin-left: 4px; }
+    .field-row { display: flex; align-items: center; gap: 12px; }
+    .field-row input[type=range] { flex: 1; accent-color: #10b981; min-width: 0; }
+    .field-row input[type=number] { width: 84px; padding: 8px; border: 1px solid #cfd9d3; border-radius: 9px; font-family: inherit;
+                                    font-weight: 700; font-size: 15px; }
+    .city-row { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+    .city-row input { padding: 9px 12px; border: 1px solid #cfd9d3; border-radius: 9px; font-family: inherit; font-size: 14px; width: 170px; }
+    .city-row button { padding: 9px 14px; font-size: 14px; }
+    #weather-msg { margin: 8px 0 0; font-size: 14px; color: var(--green); font-weight: 700; }
+    .form-error { background: #fee2e2; color: #991b1b; padding: 11px 14px; border-radius: 10px; font-weight: 700; margin: 16px 0 0; }
+    .actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+    .spinner { display: none; width: 16px; height: 16px; border: 3px solid rgba(255,255,255,.4); border-top-color: #fff;
+               border-radius: 50%; animation: spin .7s linear infinite; }
+    .loading .spinner { display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ---------- Result ---------- */
+    .result { margin-top: 26px; background: #fff; border-radius: 22px; overflow: hidden; border-top: 6px solid #f59e0b;
+              box-shadow: 0 16px 40px rgba(30,60,90,.14); display: grid; grid-template-columns: .85fr 1.15fr; }
+    .result-photo { background: linear-gradient(135deg, #fde68a, #fdba74); min-height: 280px; display: grid; place-items: center;
+                    font-size: 100px; }
+    .result-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .result-body { padding: 28px; }
+    .kicker { color: #b45309; font-weight: 800; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+    .top { display: flex; align-items: center; gap: 18px; margin: 8px 0 12px; flex-wrap: wrap; }
+    .top h2 { font-size: 34px; color: var(--dark); }
+    .ring { --p: 0; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; flex: none;
+            background: conic-gradient(#10b981 calc(var(--p) * 1%), #e5ece8 0); }
+    .ring span { width: 66px; height: 66px; border-radius: 50%; background: #fff; display: grid; place-items: center;
+                 font-weight: 800; font-size: 15px; color: var(--dark); }
+    .desc { color: #44564d; line-height: 1.6; margin: 0 0 16px; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    .fact { border-radius: 12px; padding: 12px; background: #ecfdf5; border-left: 5px solid #10b981; }
+    .fact:nth-child(2) { background: #fffbeb; border-color: #f59e0b; }
+    .fact:nth-child(3) { background: #f5f3ff; border-color: #8b5cf6; }
+    .fact small { display: block; color: var(--muted); font-weight: 700; font-size: 11px; text-transform: uppercase; }
+    .fact b { font-size: 14px; color: var(--dark); }
+    .result h3 { font-size: 16px; color: var(--dark); margin-bottom: 10px; font-family: 'Nunito Sans', sans-serif; }
+    .bars { list-style: none; margin: 0 0 18px; padding: 0; }
+    .bars li { display: grid; grid-template-columns: 120px 1fr 52px; gap: 10px; align-items: center; margin-bottom: 9px; font-size: 14px; font-weight: 700; }
+    .track { height: 10px; background: #e5ece8; border-radius: 99px; overflow: hidden; }
+    .track i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #10b981, #3b82f6); }
+    .bars li:nth-child(2) .track i { background: linear-gradient(90deg, #f59e0b, #f97316); }
+    .bars li:nth-child(3) .track i { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+    .bars em { font-style: normal; text-align: right; color: var(--muted); }
+
+    /* ---------- Gallery ---------- */
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; }
+    .crop-card { background: #fff; border-radius: 16px; overflow: hidden; border-top: 5px solid #10b981;
+                 box-shadow: 0 8px 22px rgba(30,60,90,.10); }
+    .crop-card:nth-child(4n+2) { border-color: #f59e0b; } .crop-card:nth-child(4n+3) { border-color: #3b82f6; }
+    .crop-card:nth-child(4n+4) { border-color: #8b5cf6; }
+    .crop-card img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+    .crop-emoji { aspect-ratio: 4/3; display: grid; place-items: center; font-size: 46px; background: #f1f6f3; }
+    .crop-card h3 { font-family: 'Nunito Sans', sans-serif; font-size: 16px; margin: 10px 12px 2px; color: var(--dark); }
+    .crop-card p { margin: 0 12px 12px; color: var(--muted); font-size: 12.5px; }
+
+    /* ---------- Footer ---------- */
+    .footer { margin-top: 60px; background: linear-gradient(135deg, #0b3d2e, #127a8a); color: #fff; padding: 36px 0 22px; }
+    .foot-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; }
+    .footer h3 { font-size: 20px; margin-bottom: 8px; }
+    .footer p { margin: 0; opacity: .85; line-height: 1.6; font-size: 14px; }
+    .foot-links { display: flex; gap: 8px 18px; flex-wrap: wrap; align-content: flex-start; }
+    .foot-links a { text-decoration: none; font-weight: 700; font-size: 14px; opacity: .9; }
+    .foot-links a:hover { color: #fbbf24; }
+    .copy { border-top: 1px solid rgba(255,255,255,.2); margin-top: 22px; padding-top: 14px; font-size: 13px; opacity: .75; }
+
+    /* ---------- Mobile ---------- */
+    @media (max-width: 860px) {
+      .hero-grid, .result, .foot-grid { grid-template-columns: 1fr; }
+      .art { order: -1; } .orb { width: 200px; font-size: 64px; }
+      .steps { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr; }
+      .nav-in { flex-wrap: wrap; gap: 6px; }
+      .links { margin-left: 0; width: 100%; }
+      .btn-line { margin: 10px 0 0; }
+      .panel { padding: 20px; }
+      .facts { grid-template-columns: 1fr; }
+      .bars li { grid-template-columns: 90px 1fr 48px; }
+      .city-row { margin-left: 0; width: 100%; }
+      .city-row input { flex: 1; width: auto; }
+    }
+
+    /* ---------- Print: only the result ---------- */
+    @media print {
+      .nav, .hero, .block, #predictor, .gallery-wrap, .footer, .btn { display: none !important; }
+      body { background: #fff; }
+      .result { box-shadow: none; margin: 0; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body id="top">
+
+  {% macro field_card(f) %}
+  <div class="field">
+    <label for="{{ f.key }}">{{ f.label }} <span class="unit">{{ f.unit }}</span></label>
+    <div class="field-row">
+      <input type="range" id="{{ f.key }}-range" min="{{ f.min }}" max="{{ f.max }}"
+             step="{{ f.step }}" value="{{ f.default }}" aria-label="{{ f.label }} slider">
+      <input type="number" id="{{ f.key }}" name="{{ f.key }}" min="{{ f.min }}" max="{{ f.max }}"
+             step="{{ f.step }}" value="{{ f.default }}" required>
+    </div>
+  </div>
+  {% endmacro %}
+
+  <!-- NAVBAR -->
+  <header class="nav">
+    <div class="nav-in">
+      <a class="logo" href="#top"><i>🌾</i>Smart Crop Advisor</a>
+      <nav class="links">
+        <a href="#top">Home</a>
+        <a href="#predictor">Predict</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('report') }}">Reports</a>
+        <a href="{{ url_for('history') }}">History</a>
+        <a href="{{ url_for('performance') }}">Performance</a>
+              <a href="/logout">🚪 Logout{% if user %} ({{ user.name }}){% endif %}</a>
+                      <a href="{{ url_for('logout') }}">Logout{% if user %} ({{ user.name }}){% endif %}</a>
+        <a href="#predictor" class="cta">Find my crop</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <span class="badge">🌱 AI-powered crop advisory</span>
+          <h1>Smart Crop <span>Recommendation</span> System</h1>
+          <p>Enter your soil and weather readings. A Random Forest model trained on 2,200 field records tells you which of 22 crops will grow best.</p>
+          <a class="btn btn-gold" href="#predictor">Find my crop →</a>
+          <a class="btn btn-line" href="{{ url_for('dashboard') }}">View dashboard</a>
+        </div>
+        <div class="art">
+          <div class="orb" aria-hidden="true">🌾
+            <img src="{{ url_for('static', filename='images/hero.jpg') }}" alt="" onerror="this.style.display='none'">
+          </div>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat"><b>22</b><span>crops supported</span></div>
+        <div class="stat"><b>7</b><span>soil and weather inputs</span></div>
+        <div class="stat"><b>99.55%</b><span>test accuracy</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="block">
+    <div class="container">
+      <div class="title"><h2>How it works</h2><p>Three simple steps from soil data to a crop decision</p></div>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><h3>Enter your data</h3><p>Fill in nitrogen, phosphorus, potassium, pH, temperature, humidity and rainfall, or use live weather for your city.</p></div>
+        <div class="step"><div class="n">2</div><h3>Model analyses it</h3><p>The Random Forest model compares your field with 2,200 real records and scores all 22 crops.</p></div>
+        <div class="step"><div class="n">3</div><h3>Get the best crop</h3><p>See the top crop with confidence, fertilizer, season, soil type and two alternative options.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- PREDICTOR -->
+    <section class="block" id="predictor">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Soil and weather details</h2>
+          <p>Move the sliders or type the values. Not sure? Try a sample farm.</p>
+        </div>
+
+        <div class="presets" role="group" aria-label="Sample farms">
+          {% for p in presets %}
+          <button type="button" class="chip" data-preset='{{ p.data | tojson }}'>
+            <span aria-hidden="true">{{ p.emoji }}</span> {{ p.name }}
+          </button>
+          {% endfor %}
+        </div>
+
+        <form id="crop-form" novalidate>
+          <h3 class="group">🌱 Soil nutrients</h3>
+          <div class="field-grid">
+            {% for f in fields if f.key in ['N', 'P', 'K', 'ph'] %}{{ field_card(f) }}{% endfor %}
+          </div>
+
+          <h3 class="group">☁️ Weather
+            <span class="city-row">
+              <input type="text" id="city" placeholder="City (e.g. Pune)">
+              <button type="button" class="btn btn-ghost" id="weather-btn">Get live weather</button>
+            </span>
+          </h3>
+          <p id="weather-msg"></p>
+          <div class="field-grid">
+            {% for f in fields if f.key in ['temperature', 'humidity', 'rainfall'] %}{{ field_card(f) }}{% endfor %}
+          </div>
+
+          <p id="form-error" class="form-error" role="alert" hidden></p>
+
+          <div class="actions">
+            <button type="submit" class="btn btn-green" id="submit-btn">
+              <span class="btn-label">Recommend crop</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+            <button type="button" class="btn btn-ghost" id="reset-btn">Reset values</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result" id="result" hidden aria-live="polite">
+        <div class="result-photo" id="result-photo"></div>
+        <div class="result-body">
+          <p class="kicker">Best crop for your land</p>
+          <div class="top">
+            <h2 id="result-name"></h2>
+            <div class="ring" id="result-ring"><span><b id="result-confidence"></b>%</span></div>
+          </div>
+          <p id="result-description" class="desc"></p>
+          <div class="facts">
+            <div class="fact"><small>Fertilizer</small><b id="result-fertilizer"></b></div>
+            <div class="fact"><small>Season</small><b id="result-season"></b></div>
+            <div class="fact"><small>Soil</small><b id="result-soil"></b></div>
+          </div>
+          <h3>Other good options</h3>
+          <ul class="bars" id="result-bars"></ul>
+          <button type="button" class="btn btn-ghost" id="print-btn">🖨 Print result</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="block gallery-wrap">
+      <div class="title"><h2>Crops this system knows</h2><p>22 crops covering cereals, pulses, fruits, fibre and plantation crops</p></div>
+      <div class="gallery">
+        {% for c in gallery %}
+        <article class="crop-card">
+          {% if c.image %}
+          <img src="{{ c.image }}" alt="{{ c.name }}" loading="lazy">
+          {% else %}
+          <div class="crop-emoji" aria-hidden="true">{{ c.emoji }}</div>
+          {% endif %}
+          <h3>{{ c.name }}</h3>
+          <p>{{ c.season }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div>
+          <h3>🌾 Smart Crop Advisor</h3>
+          <p>A machine learning web application that recommends the best crop for your soil and weather, built with Flask and a scikit-learn Random Forest model.</p>
+        </div>
+        <div class="foot-links">
+          <a href="#predictor">Predict</a>
+          <a href="{{ url_for('dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('report') }}">Reports</a>
+          <a href="{{ url_for('history') }}">History</a>
+          <a href="{{ url_for('performance') }}">Model performance</a>
+        </div>
+      </div>
+      <div class="copy">Smart Crop Recommendation System &middot; Flask &middot; scikit-learn Random Forest</div>
+    </div>
+  </footer>
+
+  <script>
+    const FIELD_DEFAULTS = {{ fields | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
